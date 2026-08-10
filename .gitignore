@@ -1,13 +1,28 @@
-# Dependencies
+# Dependencies (covers both root and frontend/node_modules)
 node_modules/
 
 # Builds
 dist/
+*.tsbuildinfo
 
 # SQLite Database
 *.db
 *.db-wal
 *.db-shm
 
-# Environment variables
+# Environment & Secrets
 .env
+.env.local
+.env.*.local
+
+# IDE & Editor files
+.vscode/
+.idea/
+*.suo
+*.swp
+
+# Logs & OS files
+*.log
+npm-debug.log*
+.DS_Store
+Thumbs.db
