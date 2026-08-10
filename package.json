@@ -1,0 +1,18 @@
+{
+  "dependencies": {
+    "@types/express": "^5.0.6",
+    "@types/node": "^26.1.1",
+    "better-sqlite3": "^13.0.1",
+    "express": "^5.2.1",
+    "typescript": "^7.0.2"
+  },
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "dbReset": "tsx src/scripts/resetDb.ts"
+  },
+  "devDependencies": {
+    "@types/better-sqlite3": "^7.6.13",
+    "tsx": "^4.23.1"
+  }
+}
