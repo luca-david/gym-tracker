@@ -21,6 +21,9 @@ const exercises = ref<Exercise[]>([]);
 const showCategories = ref(false);
 const showExercises = ref(false);
 
+const showHypertrophyEagle = ref(false);
+const urlHypertrophyEagle = ref('favicon.ico');
+
 //function to toggle categories state
 const toggleCategories = () => {
   //showCategories.value = !showCategories.value -> smart way to do it
@@ -41,6 +44,10 @@ const toggleExercises = () => {
 
 const closeExercises = () => {
   showExercises.value = false;
+}
+
+const toggleHypertrophyEagle = () => {
+  showHypertrophyEagle.value = !showHypertrophyEagle.value;
 }
 
 
@@ -100,6 +107,16 @@ const selectCategory = async (categoryId: number) => {
     </Transition>
     
   </div>
+
+  <div class="smiley-container">
+    <header class="smiley-header" @click="toggleHypertrophyEagle">
+      ツ
+    </header>
+    <Transition name="fadeEagle" mode="out-in">
+      <img v-if="showHypertrophyEagle" :src="urlHypertrophyEagle" class="hypertrophy-eagle" @click="toggleHypertrophyEagle">
+    </Transition>
+  </div>
+
 </template>
 
 <style scoped>
@@ -196,4 +213,30 @@ const selectCategory = async (categoryId: number) => {
   background-color: #3b3b3b;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 }
+
+.smiley-header {
+  cursor: pointer
+}
+
+.hypertrophy-eagle {
+  position: absolute;
+  left: 34%;
+  top: 25%;
+  max-width: 30%;
+  align-self: center;
+}
+
+/* CE LULA MEA FACE ASTA CA NU SE SCHIMBa nimic */
+.fadeEagle-enter-from {
+  opacity: 0;
+  transform: translateY(12px) scale(0.98);
+}
+
+.fadeEagle-enter-active {
+  transition: opacity 3s cubic-bezier(0.16, 1, 0.3, 1), 
+                transform 3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+
+
 </style>
