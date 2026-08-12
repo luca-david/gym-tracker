@@ -26,6 +26,7 @@ const toggleCategories = () => {
   //showCategories.value = !showCategories.value -> smart way to do it
   if (showCategories.value === false) {
     showCategories.value = true;
+    closeExercises();
   }
   else {
     showCategories.value = false;
@@ -38,10 +39,14 @@ const toggleExercises = () => {
   showCategories.value = !showCategories.value;
 }
 
+const closeExercises = () => {
+  showExercises.value = false;
+}
+
 
 //runs automatically when component loads on screen
 onMounted(async () => {
-  const res = await fetch('http://localhost:3030/api/categories/'); //by defualt, it looks for get operations
+  const res = await fetch('http://localhost:3030/api/categories/'); //by default, it looks for get operations
   const responseData = await res.json();
 
   categories.value = responseData.data;
@@ -69,7 +74,7 @@ const selectCategory = async (categoryId: number) => {
     <header class="app-header" @click="toggleCategories">
       <h1>Gym Tracker</h1>
     </header>
-    <Transition name="fade">
+    <Transition name="fade" mode="out-in">
       <div v-if="showCategories" class="category-grid">
         <div 
           v-for="cat in categories" 
@@ -82,7 +87,7 @@ const selectCategory = async (categoryId: number) => {
       </div>
     </Transition>
 
-    <Transition name="fadeExercises">
+    <Transition name="fadeExercises" mode="out-in">
       <div v-if="showExercises" class="exercise-grid">
         <div
           v-for="ex in exercises"
@@ -101,81 +106,76 @@ const selectCategory = async (categoryId: number) => {
 .app-container {
   width: 100%;
   max-width: 800px;
-  padding: 0rem 1rem;
-  margin-bottom: 5rem;
-  margin-left: 13rem;
+  padding: 0 1rem;
+  margin: 0 auto 1rem auto; /* Removed hardcoded 13rem left margin */
+  position: relative; /* Serves as position reference for smooth transition overlays */
 }
 
 .app-header {
   width: fit-content;
-  margin: 0 auto;
-  padding: 2rem 0.2rem;
+  margin: 0 auto 1.5rem auto;
+  padding: 1.5rem 0.2rem;
   text-align: center;
   cursor: pointer;
-  transition: transform 0.2s ease, background-color 0.2s ease;
+  user-select: none;
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.25s ease;
+}
+
+.app-header:hover {
+  opacity: 0.85;
+  transform: scale(1.02);
 }
 
 .loading-state {
   position: absolute;
-  left: 46%;
+  left: 50%;
+  transform: translateX(-50%);
   text-align: center;
 }
 
-.app-header:hover {
-  opacity: 0.8;
-  transform: scale(1.02);
-}
-
+/* Base Transition Configuration */
 .fade-enter-active,
-.fade-leave-active {
-  transition: opacity 0.5s ease, transform 0.5s ease;
+.fadeExercises-enter-active {
+  transition: opacity 0.35s cubic-bezier(0.16, 1, 0.3, 1), 
+              transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.fade-enter-from,
-.fade-leave-to {
-  opacity: 0;
-  transform: translateY(-3px);
-}
-
-.fadeExercises-enter-active,
+/* Taking leaving elements out of document flow prevents layout snapping */
+/*Commented out because I don't need exit animations for now*/
+/* .fade-leave-active,
 .fadeExercises-leave-active {
-  transition: opacity 0.5s ease, transform 0.5s ease;
+  transition: opacity 0.25s cubic-bezier(0.7, 0, 0.84, 0), 
+              transform 0.25s cubic-bezier(0.7, 0, 0.84, 0);
+  position: absolute; 
+  width: calc(100% - 2rem); Fits container padding during exit
+  pointer-events: none;
+} */
+
+/* Initial and Exit States */
+.fade-enter-from,
+.fadeExercises-enter-from {
+  opacity: 0;
+  transform: translateY(12px) scale(0.98);
 }
 
-.fadeExercises-enter-from,
+/*Commented out because I don't need exit animations for now*/
+/* .fade-leave-to,
 .fadeExercises-leave-to {
   opacity: 0;
-  transform: translateY(-3px);
-}
+  transform: translateY(-12px) scale(0.98);
+} */
 
-.category-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-  gap: 1rem;
-}
-
-.category-card {
-  background-color: #2a2a2a;
-  color: #fff;
-  padding: 1.25rem 1rem;
-  border-radius: 8px;
-  text-align: center;
-  font-weight: 600;
-  cursor: pointer;
-  transition: transform 0.2s ease, background-color 0.2s ease;
-}
-
-.category-card:hover {
-  transform: translateY(-2px);
-  background-color: #3b3b3b;
-}
-
+/* Shared Grid Styles */
+.category-grid,
 .exercise-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
   gap: 1rem;
+  width: 100%;
 }
 
+/* Shared Card Styles */
+.category-card,
 .exercise-card {
   background-color: #2a2a2a;
   color: #fff;
@@ -184,7 +184,16 @@ const selectCategory = async (categoryId: number) => {
   text-align: center;
   font-weight: 600;
   cursor: pointer;
-  transition: transform 0.2s ease, background-color 0.2s ease;
+  will-change: transform, background-color, box-shadow;
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), 
+              background-color 0.25s ease, 
+              box-shadow 0.25s ease;
 }
 
+.category-card:hover,
+.exercise-card:hover {
+  transform: translateY(-3px);
+  background-color: #3b3b3b;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
 </style>
