@@ -3,6 +3,5 @@ import { getExercisesOnCategory } from "../controllers/exerciseController.js";
 
 const router = Router();
 
-router.get('/', getExercisesOnCategory);
-
+router.get('/onCategory/:categoryId', getExercisesOnCategory);
 export default router;

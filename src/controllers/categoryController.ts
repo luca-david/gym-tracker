@@ -13,13 +13,13 @@ const getAllCategoriesStatement = db.prepare(`
 //GET for all categories
 export const getAllCategories = (req: Request, res: Response) => {
     const result = getAllCategoriesStatement.all() as { id: number, name: string }[];
-    const categoryNames = result.map(cat => cat.name); //keep only the name of the category(discard the id)
+    //const categoryNames = result.map(cat => cat.name); //keep only the name of the category(discard the id)
 
-    console.log(categoryNames);
+    console.log(result);
 
     return res.status(200).json({
         'message': 'Succesfully returned all categories',
-        'data': categoryNames
+        'data': result
     });
 }
 

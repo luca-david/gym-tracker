@@ -3,23 +3,24 @@ import db from '../db.js';
 
 const getExercisesOnCategoryStatement = db.prepare(`
     SELECT * FROM exercises WHERE category_id = ?
-`)
+`);
 
 export const getExercisesOnCategory = (req: Request, res: Response) => {
-    const { category_id } = req.params;
+    const { categoryId } = req.params;
 
-    if (!category_id) {
+    if (!categoryId) {
         return res.status(400).json({
-            'error': 'No category_id was given'
+            'error': 'No categoryId was given'
         });
     }
 
-    const result = getExercisesOnCategoryStatement.run(category_id);
+    const result = getExercisesOnCategoryStatement.all(categoryId) as { id: number, name: string, categoryId: number }[];
+    //const exercises = result.map(ex => ex.name); //keeps only the name, discards category id and id
 
     console.log(result);
 
     return res.status(200).json({
-        'message': 'Successfuly retuned all exercises for category ' + category_id,
+        'message': 'Successfuly retuned all exercises for category ' + categoryId,
         'data': result
     });
 }
