@@ -27,7 +27,7 @@ export const getAllCategories = (req: Request, res: Response) => {
 export const createNewCategory = (req: Request, res: Response) => {
     const { name } = req.body;
     try {
-        if (!name.data) {
+        if (!name) {
             return res.status(400).json({
                 error: 'New category must have a name'
             });

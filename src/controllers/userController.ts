@@ -21,7 +21,8 @@ export const createNewUser = (req: Request, res: Response) => {
 
     const userId = info.lastInsertRowid;
 
-    return res.status(401).json({
-        'message': 'Created new user ' + name + ' with id ' + userId
+    return res.status(201).json({
+        userId
+        //'message': 'Created new user ' + name + ' with id ' + userId
     });
 }

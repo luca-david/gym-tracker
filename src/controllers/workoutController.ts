@@ -24,9 +24,11 @@ export const startNewWorkout = (req: Request, res: Response) => {
         });
     }
 
-    insertWorkoutStatement.run(userId, date, 'in_progress');
+    const result = insertWorkoutStatement.run(userId, date, 'in_progress');
+    const workoutId = result.lastInsertRowid;
 
     return res.status(201).json({
+        workoutId,
         'message': 'Succesfully created a new workout for user ' + userId + ' at ' + date
     });
     
@@ -53,17 +55,17 @@ export const endWorkout = (req: Request, res: Response) => {
 
 //DELETE workout on id
 export const deleteWorkoutById = (req: Request, res: Response) => {
-    const workoutIdToDelete = req.params;
+    const { id } = req.params;
 
-    if (!workoutIdToDelete) {
+    if (!id) {
         return res.status(400).json({
             'error': 'No id was given for delete operation'
         })
     }
 
-    deleteWorkoutByIdStatement.run(workoutIdToDelete);
+    deleteWorkoutByIdStatement.run(id);
 
     return res.status(200).json({
-        'message': 'Successfully deleted the workout with id ' + workoutIdToDelete
+        'message': 'Successfully deleted the workout with id ' + id
     });
 }

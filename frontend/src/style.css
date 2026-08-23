@@ -1,0 +1,265 @@
+@import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@500;600&display=swap');
+
+/*
+  Design tokens
+  -------------
+  Palette is drawn from the gym floor, not a UI kit: chalk-dust paper,
+  cast-iron ink, and the oxide red of an old weight plate.
+*/
+:root {
+  --ink: #1c1c1e;
+  --paper: #f6f4ef;
+  --surface: #ffffff;
+  --accent: #d5451b;
+  --accent-soft: #f6e0d6;
+  --line: #e2ded4;
+  --muted: #8b8781;
+  --good: #3f6b4a;
+
+  --font-display: 'Barlow Condensed', 'Arial Narrow', sans-serif;
+  --font-body: 'Inter', system-ui, sans-serif;
+  --font-mono: 'IBM Plex Mono', 'SFMono-Regular', monospace;
+
+  --radius: 10px;
+  --shadow-card: 0 1px 2px rgba(28, 28, 30, 0.06);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#app {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+}
+
+h1,
+h2,
+h3 {
+  font-family: var(--font-display);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  margin: 0;
+}
+
+p {
+  margin: 0;
+}
+
+button {
+  font-family: inherit;
+  cursor: pointer;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* Layout shell */
+.app-shell {
+  max-width: 480px;
+  margin: 0 auto;
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+  background: var(--paper);
+}
+
+.app-main {
+  flex: 1;
+  padding: 16px 16px 96px;
+}
+
+/* Buttons */
+.btn {
+  border: none;
+  border-radius: var(--radius);
+  padding: 14px 20px;
+  font-size: 15px;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: transform 120ms ease, background 120ms ease, opacity 120ms ease;
+}
+
+.btn:active {
+  transform: scale(0.97);
+}
+
+.btn-primary {
+  background: var(--accent);
+  color: #fff;
+  width: 100%;
+}
+
+.btn-primary:disabled {
+  opacity: 0.5;
+  transform: none;
+}
+
+.btn-ghost {
+  background: transparent;
+  color: var(--ink);
+  border: 1px solid var(--line);
+}
+
+.btn-danger {
+  background: transparent;
+  color: var(--accent);
+  border: 1px solid var(--accent-soft);
+}
+
+.btn-block {
+  width: 100%;
+}
+
+/* Cards & lists */
+.card {
+  background: var(--surface);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-card);
+  padding: 16px;
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  border-top: 1px solid var(--line);
+}
+
+.list-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 4px;
+  border-bottom: 1px solid var(--line);
+  background: transparent;
+  border-left: none;
+  border-right: none;
+  border-top: none;
+  width: 100%;
+  text-align: left;
+  transition: background 120ms ease, transform 100ms ease;
+}
+
+.list-item:active {
+  background: var(--accent-soft);
+  transform: scale(0.99);
+}
+
+.eyebrow {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.muted {
+  color: var(--muted);
+}
+
+/* Plate tag: the signature element used for a logged set */
+.plate-tag {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  font-family: var(--font-mono);
+  font-weight: 600;
+}
+
+.plate-tag .value {
+  font-size: 20px;
+  color: var(--ink);
+}
+
+.plate-tag .unit {
+  font-size: 11px;
+  color: var(--muted);
+}
+
+.plate-tag .sep {
+  color: var(--accent);
+  font-size: 16px;
+  padding: 0 2px;
+}
+
+/* Empty state */
+.empty-state {
+  text-align: center;
+  padding: 48px 16px;
+  color: var(--muted);
+}
+
+.empty-state h3 {
+  color: var(--ink);
+  margin-bottom: 8px;
+  font-size: 22px;
+}
+
+/* Transitions */
+.fade-slide-enter-active,
+.fade-slide-leave-active {
+  transition: opacity 160ms ease, transform 160ms ease;
+}
+
+.fade-slide-enter-from {
+  opacity: 0;
+  transform: translateY(6px);
+}
+
+.fade-slide-leave-to {
+  opacity: 0;
+  transform: translateY(-6px);
+}
+
+.list-enter-active {
+  transition: opacity 220ms ease, transform 220ms ease;
+}
+
+.list-enter-from {
+  opacity: 0;
+  transform: translateY(8px);
+}
+
+.list-leave-active {
+  transition: opacity 120ms ease;
+  position: absolute;
+}
+
+.list-leave-to {
+  opacity: 0;
+}
+
+.sheet-enter-active,
+.sheet-leave-active {
+  transition: transform 220ms cubic-bezier(0.32, 0.72, 0, 1), opacity 220ms ease;
+}
+
+.sheet-enter-from,
+.sheet-leave-to {
+  transform: translateY(100%);
+}
+
+.backdrop-enter-active,
+.backdrop-leave-active {
+  transition: opacity 180ms ease;
+}
+
+.backdrop-enter-from,
+.backdrop-leave-to {
+  opacity: 0;
+}
