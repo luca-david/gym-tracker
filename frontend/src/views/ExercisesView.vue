@@ -29,6 +29,10 @@ async function load() {
   } finally {
     loading.value = false;
   }
+  const openId = Number(route.query.open);
+  if (openId) {
+    activeExercise.value = exercises.value.find((e) => e.id === openId) ?? null;
+  }
 }
 
 onMounted(load);
@@ -95,7 +99,7 @@ async function startWorkoutNow() {
       </div>
     </template>
 
-    <SetLogSheet :exercise="activeExercise" @close="closeSheet" @logged="onLogged" />
+    <SetLogSheet :exercise="activeExercise" @close=closeSheet @logged=onLogged />
   </div>
 </template>
 

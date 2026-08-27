@@ -24,4 +24,5 @@ export interface LoggedSet {
   reps: number;
   weight: number;
   note?: string;
+  categoryId: number;
 }

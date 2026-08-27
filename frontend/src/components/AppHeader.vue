@@ -13,7 +13,7 @@ const titles: Record<string, string> = {
 
 <template>
   <header class="header">
-    <button v-if="route.name !== 'home'" class="back" @click="router.back()" aria-label="Back">
+    <button v-if="route.name !== 'home'" class="back" @click="router.push({ 'name': 'categories' })" aria-label="Back">
       ‹
     </button>
     <span v-else class="spacer" />

@@ -3,12 +3,16 @@ import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { useSessionStore } from '../stores/session';
 import SetRow from '../components/SetRow.vue';
+import SetLogSheet from '@/components/SetLogSheet.vue';
+import type { Exercise } from '@/types/index.ts';
 
 const session = useSessionStore();
 const router = useRouter();
 
 const loading = ref(false);
 const error = ref('');
+
+const activeExercise = ref<Exercise | null>(null);
 
 async function start() {
   loading.value = true;
@@ -47,8 +51,24 @@ async function discard() {
   }
 }
 
-function addExercise() {
-  router.push({ name: 'categories' });
+// function addExercise() {
+//   router.push({ name: 'categories' });
+// }
+
+function repeatLastExercise() {
+  const last = session.loggedSets[session.loggedSets.length - 1]; //last logged set in current session
+
+  //const activeExerciseId = session.loggedSets[session.loggedSets.length - 1]?.exerciseId
+
+  // /api/exercises/onCategory/:categoryId -> path for the router
+
+  if (last) {
+    //plan: go to the page for exercises based on categoryId
+    activeExercise.value = { id: last.exerciseId, name: last.exerciseName, category_id: last.categoryId};
+    router.push({ 'name': 'exercises', 'params': {id: last.categoryId}, 'query': { open: String(last.exerciseId) } });
+  } else {
+    router.push({ name: 'categories' });
+  }
 }
 
 function formattedDate(iso: string) {
@@ -92,7 +112,7 @@ function formattedDate(iso: string) {
         v-if="session.hasActiveWorkout"
         class="btn btn-primary btn-block"
         style="margin: 16px 0"
-        @click="addExercise"
+        @click="repeatLastExercise"
       >
         + Log a set
       </button>
@@ -129,6 +149,7 @@ function formattedDate(iso: string) {
         Start a new workout
       </button>
     </div>
+    <SetLogSheet :exercise="activeExercise" @close="activeExercise = null" @logged="activeExercise = null" />
   </div>
 </template>
 

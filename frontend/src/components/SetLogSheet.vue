@@ -42,7 +42,7 @@ async function submit() {
   saving.value = true;
   error.value = '';
   try {
-    await session.logSet(props.exercise.id, props.exercise.name, {
+    await session.logSet(props.exercise.id, props.exercise.name, props.exercise.category_id, {
       reps: reps.value,
       weight: weight.value,
       note: note.value || undefined,

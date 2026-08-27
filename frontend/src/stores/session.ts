@@ -96,7 +96,8 @@ export const useSessionStore = defineStore('session', {
     async logSet(
       exerciseId: number,
       exerciseName: string,
-      payload: { reps: number; weight: number; note?: string }
+      categoryId: number,
+      payload: { reps: number; weight: number; note?: string; }
     ) {
       if (!this.activeWorkout) throw new Error('No active workout to log a set into.');
       const res = await apiLogSet(this.activeWorkout.id, { ...payload, exerciseId });
@@ -107,6 +108,7 @@ export const useSessionStore = defineStore('session', {
         reps: payload.reps,
         weight: payload.weight,
         note: payload.note,
+        categoryId: categoryId
       });
       this.persist();
     },
