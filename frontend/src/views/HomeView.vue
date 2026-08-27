@@ -64,7 +64,7 @@ function repeatLastExercise() {
 
   if (last) {
     //plan: go to the page for exercises based on categoryId
-    activeExercise.value = { id: last.exerciseId, name: last.exerciseName, category_id: last.categoryId};
+    //activeExercise.value = { id: last.exerciseId, name: last.exerciseName, category_id: last.categoryId}; not needed since we use the setlogsheet inside the exerciesView
     router.push({ 'name': 'exercises', 'params': {id: last.categoryId}, 'query': { open: String(last.exerciseId) } });
   } else {
     router.push({ name: 'categories' });
@@ -149,7 +149,7 @@ function formattedDate(iso: string) {
         Start a new workout
       </button>
     </div>
-    <SetLogSheet :exercise="activeExercise" @close="activeExercise = null" @logged="activeExercise = null" />
+    <!-- <SetLogSheet :exercise="activeExercise" @close="activeExercise = null" @logged="activeExercise = null" />  not needed since we use the SetLogSheet in ExercisesView-->
   </div>
 </template>
 

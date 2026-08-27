@@ -1,7 +1,9 @@
 import { Router } from "express";
-import { getExercisesOnCategory } from "../controllers/exerciseController.js";
+import { getExercisesOnCategory, createNewExercise } from "../controllers/exerciseController.js";
 
 const router = Router();
 
 router.get('/onCategory/:categoryId', getExercisesOnCategory);
+router.post('/new/:categoryId', createNewExercise);
+
 export default router;
