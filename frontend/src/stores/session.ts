@@ -113,12 +113,13 @@ export const useSessionStore = defineStore('session', {
       this.persist();
     },
 
-    async editSet(setId: number, updates: { reps?: number; weight?: number }) {
+    async editSet(setId: number, updates: { reps?: number; weight?: number; note?: string }) {
       await apiUpdateSet(setId, updates);
       const target = this.loggedSets.find((s) => s.id === setId);
       if (target) {
         if (updates.reps !== undefined) target.reps = updates.reps;
         if (updates.weight !== undefined) target.weight = updates.weight;
+        if (updates.note !== undefined) target.note = updates.note;
         this.persist();
       }
     },

@@ -6,7 +6,7 @@ const insertSetStatement = db.prepare(`
 `);
 
 const updateSetStatement = db.prepare(`
-    UPDATE sets SET reps = COALESCE(?, reps), weight = COALESCE(?, weight) where id = ?
+    UPDATE sets SET reps = COALESCE(?, reps), weight = COALESCE(?, weight), note = COALESCE(?, note) where id = ?
 `); //coalesce - returns a copy of the first non null argument, returns null if not provided
 
 const deleteSet = db.prepare(`
@@ -64,17 +64,17 @@ export const logSet = (req: Request, res: Response) => {
 export const updateSet = (req: Request, res: Response) => {
     const setId = req.params.id;
 
-    const { weight, reps } = req.body;
+    const { weight, reps, note } = req.body;
 
-    console.log('Values for update -> weight: ' + weight + ' | reps : ' + reps);
+    console.log('Values for update -> weight: ' + weight + ' | reps : ' + reps + ' | note: ' + note);
 
-    if (!weight && !reps) {
+    if (!weight && !reps && !note) {
         return res.status(400).json({
             'error': 'No update values given for weight nor reps'
         });
     }
 
-    const result = updateSetStatement.run(reps, weight, setId);
+    const result = updateSetStatement.run(reps, weight, note, setId);
 
     return res.status(200).json({
         'message': 'Succesfully updated set ' + setId + ' with ' + result.changes

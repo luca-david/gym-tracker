@@ -9,12 +9,14 @@ const session = useSessionStore();
 const editing = ref(false);
 const draftReps = ref(props.set.reps);
 const draftWeight = ref(props.set.weight);
+const draftNote = ref(props.set.note);
 const saving = ref(false);
 const error = ref('');
 
 function startEdit() {
   draftReps.value = props.set.reps;
   draftWeight.value = props.set.weight;
+  draftNote.value = props.set.note;
   error.value = '';
   editing.value = true;
 }
@@ -23,7 +25,7 @@ async function save() {
   saving.value = true;
   error.value = '';
   try {
-    await session.editSet(props.set.id, { reps: draftReps.value, weight: draftWeight.value });
+    await session.editSet(props.set.id, { reps: draftReps.value, weight: draftWeight.value, note: draftNote.value });
     editing.value = false;
   } catch (e) {
     error.value = e instanceof Error ? e.message : 'Could not save the change';
@@ -44,6 +46,7 @@ async function save() {
         <span class="sep">×</span>
         <span class="value">{{ set.reps }}</span>
         <span class="unit">reps</span>
+        <p v-if="set.note" class="note">{{ set.note }}</p>
       </div>
 
       <div v-else class="edit-row">
@@ -55,13 +58,15 @@ async function save() {
           <span class="unit">reps</span>
           <input v-model.number="draftReps" type="number" inputmode="numeric" min="0" />
         </label>
+        <label>
+          <span class="unit">note</span>
+          <input v-model.trim="draftNote" type="text" inputmode="text" />
+        </label>
         <button class="btn btn-ghost small" :disabled="saving" @click="save">
           {{ saving ? 'Saving…' : 'Save' }}
         </button>
         <button class="btn btn-ghost small" @click="editing = false">Cancel</button>
-      </div>
-
-      <p v-if="set.note" class="note">{{ set.note }}</p>
+      </div>      
       <p v-if="error" class="error">{{ error }}</p>
     </div>
   </div>
