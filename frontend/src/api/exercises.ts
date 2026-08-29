@@ -9,5 +9,4 @@ export function fetchExercisesForCategory(categoryId: number | string) {
 
 export function createNewExercise(name: string, categoryId: number | string) {
   return http.post<{ message: string; data: Exercise }>(`/exercises/new/${categoryId}`, {name});
-  //Request to exercises/new/NaN failed with status 500
 }

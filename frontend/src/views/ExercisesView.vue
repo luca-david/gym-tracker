@@ -131,7 +131,7 @@ async function addExercise() {
         <p class="muted">No exercises in this category yet.</p>
       </div>
 
-      <button v-if="!showAdd" class="btn btn-ghost btn-block" @click="showAdd = true">
+      <button v-if="!showAdd" class="btn btn-ghost btn-add-exercise btn-block" @click="showAdd = true">
         + New Exercise
       </button>
       <div v-else class="add-form">
@@ -208,6 +208,10 @@ async function addExercise() {
   display: flex;
   gap: 10px;
   justify-content: flex-end;
+}
+
+.btn-add-exercise {
+  margin-top: 1.5rem;
 }
 
 </style>
