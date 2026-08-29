@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import { fetchExercisesForCategory } from '../api/exercises.ts';
+import { fetchExercisesForCategory, createNewExercise } from '../api/exercises.ts';
 import { useSessionStore } from '../stores/session';
 import type { Exercise } from '../types';
 import SetLogSheet from '../components/SetLogSheet.vue';
@@ -14,6 +14,11 @@ const exercises = ref<Exercise[]>([]);
 const loading = ref(true);
 const error = ref('');
 const startingWorkout = ref(false);
+
+const newName = ref(''); //for storing the exercise of the new exercise
+const creating = ref(false); //for storing the data about the new exercise
+const createError = ref(''); //error variable
+const showAdd = ref(false); //brings up the add exercise component
 
 const activeExercise = ref<Exercise | null>(null);
 
@@ -61,6 +66,34 @@ async function startWorkoutNow() {
     startingWorkout.value = false;
   }
 }
+
+async function addExercise() {
+  if (!newName.value.trim()) {
+    return
+  }
+
+  const categoryId = parseInt(route.params.id as string, 10); //reads from URL
+  if (Number.isNaN(categoryId)) {
+    createError.value = 'Invalid category Id';
+    return;
+  }
+
+  creating.value = true;
+  createError.value = '';
+
+  console.log(route.params);
+
+  try {
+    await createNewExercise(newName.value.trim(), categoryId);
+    newName.value = '';
+    showAdd.value = false;
+    await load();
+  } catch (error) {
+    createError.value = error instanceof Error ? error.message : 'Could not create new exercicse';
+  } finally {
+    creating.value = false;
+  }
+}
 </script>
 
 <template>
@@ -97,6 +130,20 @@ async function startWorkoutNow() {
       <div v-if="!exercises.length" class="empty-state">
         <p class="muted">No exercises in this category yet.</p>
       </div>
+
+      <button v-if="!showAdd" class="btn btn-ghost btn-block" @click="showAdd = true">
+        + New Exercise
+      </button>
+      <div v-else class="add-form">
+          <input v-model="newName" type="text" placeholder="Exercise name" @keyup.enter="addExercise" />
+          <div class="add-actions">
+            <button class="btn btn-ghost small" @click="showAdd = false">Cancel</button>
+            <button class="btn btn-primary small" :disabled="creating" @click="addExercise">
+              {{ creating ? 'Adding…' : 'Add' }}
+            </button>
+          </div>
+          <p v-if="createError" class="error">{{ createError }}</p>
+        </div>
     </template>
 
     <SetLogSheet :exercise="activeExercise" @close=closeSheet @logged=onLogged />
@@ -142,4 +189,25 @@ async function startWorkoutNow() {
   font-size: 13px;
   white-space: nowrap;
 }
+
+.add-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.add-form input {
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 12px;
+  font-size: 15px;
+  background: var(--surface);
+}
+
+.add-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+}
+
 </style>
