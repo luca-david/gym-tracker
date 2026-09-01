@@ -1,10 +1,10 @@
 import 'dotenv/config';
 import express, { type Request, type Response } from 'express';
-import workoutRoutes from './router/workoutRoutes';
-import setRoutes from './router/setRoutes';
-import categoryRoutes from './router/categoryRoutes';
-import exerciseRoutes from './router/exerciseRoutes';
-import userRoutes from './router/userRoutes';
+import workoutRoutes from './router/workoutRoutes.js';
+import setRoutes from './router/setRoutes.js';
+import categoryRoutes from './router/categoryRoutes.js';
+import exerciseRoutes from './router/exerciseRoutes.js';
+import userRoutes from './router/userRoutes.js';
 import cors from 'cors';
 import ngrok from '@ngrok/ngrok';
 
@@ -49,3 +49,5 @@ app.listen(PORT, async () => {
         console.error('Ngrok failed to connect', error);
     }
 })
+
+export default app;
