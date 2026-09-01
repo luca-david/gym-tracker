@@ -10,7 +10,18 @@ import cors from 'cors';
 const app = express();
 const PORT = process.env.PORT || 3030;
 
-app.use(cors());
+//app.use(cors());
+// Allowed origins for CORS
+const allowedOrigins = [
+    'http://localhost:5173',
+    'http://localhost:3000',
+    process.env.VITE_API_BASE_URL
+].filter((origin): origin is string => Boolean(origin));
+
+app.use(cors({
+    origin: allowedOrigins.length > 0 ? allowedOrigins : '*',
+    credentials: true
+}));
 
 app.use(express.json()); //express cannot read json data by default
 
