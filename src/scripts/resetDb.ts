@@ -1,32 +1,18 @@
-import db from '../db.js';
-import { seedDefaultCategories, defaultCategories } from '../db.js';
+import 'dotenv/config';
+import sql from '../db.js';
+import { seedDefaults } from './seed.js';
 
-export function resetDatabase() {
-    //disable foreign keys so the data can be deleted in any order
-    db.pragma('foreign_keys = OFF');
+export async function resetDatabase(): Promise<void> {
+    //TRUNCATE clears every row in one shot; CASCADE lets it ignore the foreign keys between the
+    //tables (there is no need to disable them first the way SQLite required), and RESTART
+    //IDENTITY puts the id sequences back to 1 - Postgres reclaims the space itself, so the
+    //old WAL checkpoint and VACUUM steps are gone
+    await sql`TRUNCATE sets, workouts, exercises, categories, users RESTART IDENTITY CASCADE`;
 
-    //clear all rows and reset autoincrement back to 1
-    db.exec(`
-        DELETE FROM sets;
-        DELETE FROM categories;
-        DELETE FROM exercises;
-        DELETE FROM workouts;
-        DELETE FROM sqlite_sequence; 
-    `);
+    //repopulate the default categories and exercises
+    await seedDefaults();
 
-    //reenable foreign keys
-    db.pragma('foreign_leys = ON');
-
-    //repopulate with default values for categories
-    seedDefaultCategories(defaultCategories);
-
-    //truncate -wal file back to 0 bytes
-    db.pragma('wal_checkpoint(TRUNCATE)');
-
-    //clean up allocated database memory space
-    db.pragma('VACUUM');
-
-    console.log('The database was wiped');
+    console.log('The database was wiped and reseeded');
 }
 
-resetDatabase();
+await resetDatabase();

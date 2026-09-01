@@ -1,13 +1,7 @@
 import type { Request, Response } from "express";
-import db from "../db.js";
+import sql from "../db.js";
 
-const insertUserStatement = db.prepare(`
-    INSERT INTO users (name) VALUES (?)    
-`)
-
-
-
-export const createNewUser = (req: Request, res: Response) => {
+export const createNewUser = async (req: Request, res: Response) => {
     const { name } = req.body;
     console.log('name: ' + name);
 
@@ -17,12 +11,21 @@ export const createNewUser = (req: Request, res: Response) => {
         });
     }
 
-    const info = insertUserStatement.run(name);
+    try {
+        const rows = await sql`
+            INSERT INTO users (name) VALUES (${name}) RETURNING id
+        ` as { id: number }[];
 
-    const userId = info.lastInsertRowid;
+        const userId = rows[0]?.id;
 
-    return res.status(201).json({
-        userId
-        //'message': 'Created new user ' + name + ' with id ' + userId
-    });
+        return res.status(201).json({
+            userId
+            //'message': 'Created new user ' + name + ' with id ' + userId
+        });
+    } catch (error) {
+        console.error(error);
+        return res.status(400).json({
+            'error': 'Could not create the user ' + name
+        });
+    }
 }

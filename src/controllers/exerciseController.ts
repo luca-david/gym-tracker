@@ -1,15 +1,7 @@
 import type { Request, Response } from 'express';
-import db from '../db.js';
+import sql from '../db.js';
 
-const getExercisesOnCategoryStatement = db.prepare(`
-    SELECT * FROM exercises WHERE category_id = ?
-`);
-
-const createNewExerciseStmt = db.prepare(`
-    INSERT OR IGNORE INTO exercises (name, category_id) VALUES (?, ?)    
-`)
-
-export const getExercisesOnCategory = (req: Request, res: Response) => {
+export const getExercisesOnCategory = async (req: Request, res: Response) => {
     const { categoryId } = req.params;
 
     if (!categoryId) {
@@ -18,18 +10,28 @@ export const getExercisesOnCategory = (req: Request, res: Response) => {
         });
     }
 
-    const result = getExercisesOnCategoryStatement.all(categoryId) as { id: number, name: string, categoryId: number }[];
-    //const exercises = result.map(ex => ex.name); //keeps only the name, discards category id and id
+    try {
+        const result = await sql`
+            SELECT id, name, category_id FROM exercises
+            WHERE category_id = ${categoryId}::integer
+            ORDER BY id
+        ` as { id: number, name: string, category_id: number }[];
 
-    console.log(result);
+        console.log(result);
 
-    return res.status(200).json({
-        'message': 'Successfuly retuned all exercises for category ' + categoryId,
-        'data': result
-    });
+        return res.status(200).json({
+            'message': 'Successfuly retuned all exercises for category ' + categoryId,
+            'data': result
+        });
+    } catch (error) {
+        console.error(error);
+        return res.status(400).json({
+            'error': 'Error while reading the exercises for category ' + categoryId
+        });
+    }
 }
 
-export const createNewExercise = (req: Request, res: Response) => {
+export const createNewExercise = async (req: Request, res: Response) => {
     const { categoryId } = req.params;
 
     const { name } = req.body;
@@ -40,14 +42,26 @@ export const createNewExercise = (req: Request, res: Response) => {
         });
     }
 
-    const result = createNewExerciseStmt.run(name, categoryId);
+    try {
+        const rows = await sql`
+            INSERT INTO exercises (name, category_id)
+            VALUES (${name}, ${categoryId}::integer)
+            ON CONFLICT DO NOTHING
+            RETURNING id
+        ` as { id: number }[];
 
-    return res.status(201).json({
-        'exercise': {
-            id: result.lastInsertRowid,
-            name,
-            categoryId
-        },
-        'message': 'Succesfully created new exericse: ' + name
-    });
+        return res.status(201).json({
+            'exercise': {
+                id: rows[0]?.id,
+                name,
+                categoryId
+            },
+            'message': 'Succesfully created new exericse: ' + name
+        });
+    } catch (error) {
+        console.error(error);
+        return res.status(400).json({
+            'error': 'Could not create the exercise ' + name
+        });
+    }
 }

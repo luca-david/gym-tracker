@@ -1,6 +1,4 @@
-import { Router, type Request, type Response } from 'express';
-import db from '../db.js';
-import type { WorkoutInput } from '../types/workout.js';
+import { Router } from 'express';
 import { deleteWorkoutById, endWorkout, startNewWorkout } from '../controllers/workoutController.js';
 import { logSet } from '../controllers/setController.js';
 

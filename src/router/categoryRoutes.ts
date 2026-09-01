@@ -1,5 +1,4 @@
-import { Router, type Request, type Response } from "express";
-import db from "../db.js";
+import { Router } from "express";
 import { createNewCategory, getAllCategories } from "../controllers/categoryController.js";
 
 const router = Router();

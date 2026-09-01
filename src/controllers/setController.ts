@@ -1,20 +1,8 @@
 import type { Request, Response } from "express";
-import db from "../db.js";
-
-const insertSetStatement = db.prepare(`
-    INSERT INTO sets (exercise_id, reps, weight, note, workout_id) VALUES (?, ?, ?, ?, ?)    
-`);
-
-const updateSetStatement = db.prepare(`
-    UPDATE sets SET reps = COALESCE(?, reps), weight = COALESCE(?, weight), note = COALESCE(?, note) where id = ?
-`); //coalesce - returns a copy of the first non null argument, returns null if not provided
-
-const deleteSet = db.prepare(`
-    DELETE FROM sets WHERE id = ?    
-`)
+import sql from "../db.js";
 
 //post the weight, reps and comments(optional) based on the current exercise
-export const logSet = (req: Request, res: Response) => {
+export const logSet = async (req: Request, res: Response) => {
     const workoutId = req.params.id;
 
 
@@ -26,7 +14,7 @@ export const logSet = (req: Request, res: Response) => {
         console.log('note: ' + note);
         console.log('exercise id: ' + exerciseId);
         console.log('workoutId: ' + workoutId + '\n-------------\n');
-        
+
         if (!reps || !weight) {
             return res.status(400).json({
                 error: 'Reps and weight are required'
@@ -34,11 +22,11 @@ export const logSet = (req: Request, res: Response) => {
         }
 
         //get the status for the workoutId
-        const getWorkoutStatusStatement = db.prepare(`
-            SELECT status FROM workouts where id = ?    
-        `);
+        const workoutRows = await sql`
+            SELECT status FROM workouts WHERE id = ${workoutId}::integer
+        ` as { status: string }[];
 
-        const workoutData = getWorkoutStatusStatement.get(workoutId) as { status: string } | undefined;
+        const workoutData = workoutRows[0];
 
         //if the given workoutId is finished, do not allow logging for it
         if (workoutData?.status === 'finished') {
@@ -46,22 +34,27 @@ export const logSet = (req: Request, res: Response) => {
                 'error': 'Cannot log a new set in a finished workout. Please start a new one'
             });
         }
-    
-        const result = insertSetStatement.run(exerciseId, reps, weight, note ?? null, workoutId); // since note is optional field we might store it as null
+
+        const rows = await sql`
+            INSERT INTO sets (exercise_id, reps, weight, note, workout_id)
+            VALUES (${exerciseId}, ${reps}, ${weight}, ${note ?? null}, ${workoutId}::integer)
+            RETURNING id
+        ` as { id: number }[]; // since note is optional field we might store it as null
 
         return res.status(200).json({
             message: 'Set logged successfully',
-            setId: Number(result.lastInsertRowid)
+            setId: rows[0]?.id
         });
-        
+
     } catch (error) {
+        console.error(error);
         return res.status(400).json({
             error: 'Error while posting the data to the db'
         });
     }
 }
 
-export const updateSet = (req: Request, res: Response) => {
+export const updateSet = async (req: Request, res: Response) => {
     const setId = req.params.id;
 
     const { weight, reps, note } = req.body;
@@ -74,11 +67,25 @@ export const updateSet = (req: Request, res: Response) => {
         });
     }
 
-    const result = updateSetStatement.run(reps, weight, note, setId);
+    try {
+        //coalesce - returns the first non null argument, so a field that was left out keeps its
+        //current value; the ::integer / ::text casts tell Postgres what a null parameter is
+        const rows = await sql`
+            UPDATE sets
+            SET reps = COALESCE(${reps ?? null}::integer, reps),
+                weight = COALESCE(${weight ?? null}::integer, weight),
+                note = COALESCE(${note ?? null}::text, note)
+            WHERE id = ${setId}::integer
+            RETURNING id
+        ` as { id: number }[];
 
-    return res.status(200).json({
-        'message': 'Succesfully updated set ' + setId + ' with ' + result.changes
-    });
-
-    
+        return res.status(200).json({
+            'message': 'Succesfully updated set ' + setId + ' with ' + rows.length
+        });
+    } catch (error) {
+        console.error(error);
+        return res.status(400).json({
+            'error': 'Could not update set ' + setId
+        });
+    }
 }
