@@ -1,5 +1,10 @@
 // Base URL for the Express API. Override with VITE_API_BASE_URL in a .env file.
-const BASE_URL = (import.meta as any).env?.VITE_API_BASE_URL ?? '/api';
+// Every route on the backend is mounted under /api, so accept the deployment origin
+// ("https://my-api.vercel.app") or the full base ("https://my-api.vercel.app/api")
+// and normalise both to the same thing - leaving the /api off is otherwise a silent 404.
+const rawBaseUrl: string = (import.meta as any).env?.VITE_API_BASE_URL ?? '/api';
+const trimmedBaseUrl = rawBaseUrl.replace(/\/+$/, '');
+const BASE_URL = trimmedBaseUrl.endsWith('/api') ? trimmedBaseUrl : `${trimmedBaseUrl}/api`;
 
 export class ApiError extends Error {}
 
