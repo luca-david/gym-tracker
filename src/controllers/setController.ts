@@ -89,3 +89,42 @@ export const updateSet = async (req: Request, res: Response) => {
         });
     }
 }
+
+export const getPreviousSetsForExercise = async (req: Request, res: Response) => {
+    const { exerciseId } = req.params;
+
+    if (!exerciseId) {
+        return res.status(400).json({
+            'error': 'No exerciseId was received from the params'
+        });
+    }
+
+    type SetRow = {
+        id: number;
+        workout_id: number;
+        exercise_id: number;
+        reps: number;
+        weight: number;
+        note: string | null;
+    };
+
+    const previousSets = await sql`
+        SELECT id, workout_id, exercise_id, reps, weight, note FROM sets WHERE exercise_id = ${exerciseId}::integer
+        ORDER BY id DESC;
+    ` as SetRow[];
+
+    console.log('Info from previous set: ');
+    console.log(
+        'id: ' + previousSets[0]?.id + 
+        ' | workout_id: ' + previousSets[0]?.workout_id +
+        ' | exercise_id: ' + previousSets[0]?.exercise_id +
+        ' | reps: ' + previousSets[0]?.reps +
+        ' | weight: ' + previousSets[0]?.weight +
+        ' | note: ' + previousSets[0]?.note
+    );
+
+    return res.status(200).json({
+        'data': previousSets,
+        'message': 'Successfully returned all information from previous sets based on exerciseId ' + exerciseId
+    });
+}

@@ -10,12 +10,6 @@ import cors from 'cors';
 const app = express();
 const PORT = process.env.PORT || 3030;
 
-// Allowed origins for CORS.
-// These are the origins of the *frontend* that is allowed to call this API - not this
-// API's own address. Set FRONTEND_ORIGINS in the Vercel project settings to a comma
-// separated list, e.g. "https://gym-tracker-4jje.vercel.app". Vercel hands every
-// deployment its own hostname, so list any extra ones you want to keep working.
-// With FRONTEND_ORIGINS unset every origin is allowed, which is what a bare cors() does.
 const configuredOrigins = (process.env.FRONTEND_ORIGINS ?? '')
     .split(',')
     .map((origin) => origin.trim())
@@ -27,8 +21,6 @@ const allowedOrigins = [
     ...configuredOrigins
 ];
 
-//no credentials option: the frontend sends no cookies or auth headers, and asking for
-//credentials while reflecting any origin is the combination browsers refuse anyway
 app.use(cors({
     origin: configuredOrigins.length > 0 ? allowedOrigins : true
 }));
