@@ -14,6 +14,7 @@ const weight = ref<number | null>(null);
 const note = ref('');
 const saving = ref(false);
 const error = ref('');
+const showHistory = ref(false);
 const history = ref<PreviousSet[] | null>(null);
 const loadingHistory = ref(false);
 
@@ -33,6 +34,7 @@ watch(
     note.value = '';
     error.value = '';
     history.value = null;
+    showHistory.value = false;
   },
   { immediate: true }
 );
@@ -59,7 +61,12 @@ async function submit() {
   }
 }
 
-async function fetchHistory() {
+async function toggleHistory() {
+  if (showHistory.value === true) {
+    showHistory.value = false;
+    return;
+  }
+  
   if (!props.exercise) {
     return
   };
@@ -73,6 +80,7 @@ async function fetchHistory() {
   } finally {
     loadingHistory.value = false;
   }
+  showHistory.value = true;
 }
 
 </script>
@@ -87,12 +95,12 @@ async function fetchHistory() {
         <div class="sheet-handle" />
         <div class="sheet-header">
         <h2>{{ exercise.name }}</h2>
-        <button class="btn" @click="fetchHistory" :disabled="loadingHistory">
-          {{ loadingHistory ? 'Loading…' : 'History' }}
+        <button class="btn" @click="toggleHistory" :disabled="loadingHistory">
+          {{ loadingHistory ? 'Loading…' : showHistory ? 'Hide History' : 'History' }}
         </button>
       </div>
         <!-- History Section -->
-        <div v-if="history" class="history-container">
+        <div v-if="showHistory && history" class="history-container">
           <p v-if="history.length === 0" class="eyebrow">No history found</p>
           <ul v-else class="history-list">
             <li v-for="(set, index) in history" :key="set.id || index">
