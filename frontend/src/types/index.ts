@@ -26,3 +26,12 @@ export interface LoggedSet {
   note?: string;
   categoryId: number;
 }
+
+export interface PreviousSet {
+  id: number;
+  workoutId: number;
+  exerciseId: number;
+  reps: number;
+  weight: number;
+  note?: string;
+}

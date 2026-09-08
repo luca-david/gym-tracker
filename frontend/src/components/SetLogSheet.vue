@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { ref, watch, computed } from 'vue';
-import type { Exercise } from '../types';
+import type { Exercise, PreviousSet } from '../types';
 import { useSessionStore } from '../stores/session';
+import { getPreviousSetsForExercise } from '@/api/sets';
 
 const props = defineProps<{ exercise: Exercise | null }>();
 const emit = defineEmits<{ close: []; logged: [] }>();
@@ -13,6 +14,8 @@ const weight = ref<number | null>(null);
 const note = ref('');
 const saving = ref(false);
 const error = ref('');
+const history = ref<PreviousSet[] | null>(null);
+const loadingHistory = ref(false);
 
 // Prefill with the last set logged for this exercise in the current
 // workout, so repeat sets are a single tap.
@@ -29,6 +32,7 @@ watch(
     weight.value = lastSetForExercise.value?.weight ?? null;
     note.value = '';
     error.value = '';
+    history.value = null;
   },
   { immediate: true }
 );
@@ -54,6 +58,23 @@ async function submit() {
     saving.value = false;
   }
 }
+
+async function fetchHistory() {
+  if (!props.exercise) {
+    return
+  };
+
+  loadingHistory.value = true;
+  try{
+    const response = await getPreviousSetsForExercise(props.exercise.id);
+    history.value = response;
+  } catch (err) {
+    error.value = 'Failed to load history';
+  } finally {
+    loadingHistory.value = false;
+  }
+}
+
 </script>
 
 <template>
@@ -64,7 +85,22 @@ async function submit() {
     <transition name="sheet">
       <div v-if="exercise" class="sheet" role="dialog" aria-modal="true">
         <div class="sheet-handle" />
+        <div class="sheet-header">
         <h2>{{ exercise.name }}</h2>
+        <button class="btn" @click="fetchHistory" :disabled="loadingHistory">
+          {{ loadingHistory ? 'Loading…' : 'History' }}
+        </button>
+      </div>
+        <!-- History Section -->
+        <div v-if="history" class="history-container">
+          <p v-if="history.length === 0" class="eyebrow">No history found</p>
+          <ul v-else class="history-list">
+            <li v-for="(set, index) in history" :key="set.id || index">
+              {{ set.weight }} kg × {{ set.reps }} reps
+              <span v-if="set.note"> | {{ set.note }}</span>
+            </li>
+          </ul>
+        </div>
 
         <div class="fields">
           <div class="weight-field">
@@ -187,4 +223,32 @@ input {
   display: flex;
   gap: 10px;
 }
+
+.sheet-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.sheet h2 {
+  font-size: 24px;
+  margin-bottom: 0; /* Removed margin-bottom: 16px */
+}
+
+.history-container {
+  margin: 12px 0;
+  max-height: 120px;
+  overflow-y: auto;
+  border-top: 1px dashed var(--line);
+  padding-top: 8px;
+}
+
+.history-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  font-size: 14px;
+}
+
 </style>
